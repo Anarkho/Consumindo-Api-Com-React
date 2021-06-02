@@ -18,6 +18,10 @@ export const tarefaReducer = (state = ESTADO_INICIAL, action) => {
             return { ...state, tarefas: action.tarefas }
         case ACTIONS.ADD:
             return { ...state, tarefas: [...state.tarefas, action.tarefa] }
+        case ACTIONS.REMOVE:
+            const id = action.id
+            const lista = state.tarefas.filter(tarefa => tarefa.id !== id) // retorna todas tarefas diferente do id da excluida
+            return {...state, tarefas: lista}
         default:
             return state
     }
@@ -50,4 +54,17 @@ export function Salvar(tarefa) {
         })
     }
     
+}
+
+export function Deletar(id) {
+    return dispatch => {
+        http.delete(`/tarefas/${id}`, {
+            headers
+        }).then(response => {
+            dispatch({
+                type: ACTIONS.REMOVE,
+                id: id
+            })
+        })
+    }
 }

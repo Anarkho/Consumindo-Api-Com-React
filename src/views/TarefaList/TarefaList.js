@@ -9,7 +9,7 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Listar , Salvar } from '../../store/tarefasReducers'
+import { Listar , Salvar, Deletar } from '../../store/tarefasReducers'
 
 
 const useStyles = makeStyles(theme => ({
@@ -54,18 +54,7 @@ const TarefaList = (props) => {
 
     })
   }
-  //////////////////////////////////////////////////////
-  const deletar = (id) => {
-    axios.delete(`${http}/tarefas/${id}`, {
-      headers
-    }).then(response => {
-      const lista = tarefas.filter(tarefa => tarefa.id !== id) // retorna todas tarefas diferente do id da excluida
-      setTarefas(lista)
-      setSucesso(true)
-    }).catch(erro => {
-
-    })
-  }
+ 
 
   return (
     <div className={classes.root}>
@@ -98,7 +87,7 @@ const TarefaList = (props) => {
         <TarefasTable
           onClick={alterarStatus}
           tarefas={props.tarefas}
-          onMouseUp={deletar}
+          onMouseUp={props.Deletar}
         />
       </div>
       <Dialog open={openDialog} onClose={e => setOpenDialog(false)}>
@@ -120,6 +109,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ Listar, Salvar }, dispatch)
+  bindActionCreators({ Listar, Salvar, Deletar }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(TarefaList);
