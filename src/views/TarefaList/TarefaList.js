@@ -3,9 +3,14 @@ import { makeStyles } from '@material-ui/styles';
 
 import { TarefasToolbar, TarefasTable } from './components';
 import axios from 'axios'
-import { baseUrl, headers } from '../../services/api'
+import { http, headers } from '../../services/api'
 import { Dialog, DialogContent, DialogActions, DialogTitle, Button } from '@material-ui/core'
 import { Alert, AlertTitle } from '@material-ui/lab';
+
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { Listar } from '../../store/tarefasReducers'
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -16,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 /////////////////////////////////////////////////////
-const TarefaList = () => {
+const TarefaList = (props) => {
   const classes = useStyles();
 
   const [tarefas, setTarefas] = useState([]);
@@ -27,7 +32,7 @@ const TarefaList = () => {
   const [severity, setSeverity] = useState('info')
 
   const salvar = (tarefa) => {
-    axios.post(baseUrl, tarefa, {
+    axios.post(http+"/tarefas", tarefa, {
       headers
     }).then(response => {
       const novaTarefa = response.data
@@ -41,25 +46,14 @@ const TarefaList = () => {
       setSeverity('error')
     })
   }
-  /////////////////////////////////////////////////////
-  const ListarTarefas = () => {
-    axios.get(baseUrl, {
-      headers
-    }).then(response => {
-      const ListaTarefas = response.data
-      setTarefas(ListaTarefas)
-    }).catch(erro => {
-      setMensagem("Erro ao recuperar lista!")
-      setOpenDialog(true)
-    })
-  }
+ 
   //////////////////////////////////////////////////////
   useEffect(() => {
-    ListarTarefas()
+    props.Listar();
   }, [])
   //////////////////////////////////////////////////////
   const alterarStatus = (id) => {
-    axios.patch(`${baseUrl}/${id}`, null, {
+    axios.patch(`${http}/tarefas/${id}`, null, {
       headers
     }).then(response => {
       const lista = [...tarefas]
@@ -78,7 +72,7 @@ const TarefaList = () => {
   }
   //////////////////////////////////////////////////////
   const deletar = (id) => {
-    axios.delete(`${baseUrl}/${id}`, {
+    axios.delete(`${http}/tarefas/${id}`, {
       headers
     }).then(response => {
       const lista = tarefas.filter(tarefa => tarefa.id !== id) // retorna todas tarefas diferente do id da excluida
@@ -112,14 +106,14 @@ const TarefaList = () => {
         }
         {informa ?
           <Alert
-          onClose={e => setInfo(false)}
-           severity={severity}>
-             <AlertTitle>{mensagem}</AlertTitle>
-             </Alert> : <></>
+            onClose={e => setInfo(false)}
+            severity={severity}>
+            <AlertTitle>{mensagem}</AlertTitle>
+          </Alert> : <></>
         }
         <TarefasTable
           onClick={alterarStatus}
-          tarefas={tarefas}
+          tarefas={props.tarefas}
           onMouseUp={deletar}
         />
       </div>
@@ -137,4 +131,11 @@ const TarefaList = () => {
   );
 };
 
-export default TarefaList;
+const mapStateToProps = state => ({
+  tarefas: state.Tarefas.tarefas //store.reducer.props
+})
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ Listar }, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(TarefaList);
