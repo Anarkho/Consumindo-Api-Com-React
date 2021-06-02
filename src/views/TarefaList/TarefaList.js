@@ -9,7 +9,7 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Listar } from '../../store/tarefasReducers'
+import { Listar , Salvar } from '../../store/tarefasReducers'
 
 
 const useStyles = makeStyles(theme => ({
@@ -31,26 +31,10 @@ const TarefaList = (props) => {
   const [informa, setInfo] = useState(false)
   const [severity, setSeverity] = useState('info')
 
-  const salvar = (tarefa) => {
-    axios.post(http+"/tarefas", tarefa, {
-      headers
-    }).then(response => {
-      const novaTarefa = response.data
-      setTarefas([...tarefas, novaTarefa])
-      setMensagem('Tarefa adicionada com sucesso!')
-      setInfo(true)
-      setSeverity('success')
-    }).catch(erro => {
-      setMensagem("Erro ao cadastrar tarefa!")
-      setInfo(true)
-      setSeverity('error')
-    })
-  }
- 
-  //////////////////////////////////////////////////////
+  
   useEffect(() => {
     props.Listar();
-  }, [])
+  })
   //////////////////////////////////////////////////////
   const alterarStatus = (id) => {
     axios.patch(`${http}/tarefas/${id}`, null, {
@@ -91,7 +75,7 @@ const TarefaList = (props) => {
       }}>
         Lista de Tarefas
       </h1>
-      <TarefasToolbar defaultValue={salvar} />
+      <TarefasToolbar defaultValue={props.Salvar} />
       <div className={classes.content}>
         {sucesso ?
           <Alert
@@ -136,6 +120,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ Listar }, dispatch)
+  bindActionCreators({ Listar, Salvar }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(TarefaList);

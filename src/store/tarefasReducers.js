@@ -1,4 +1,4 @@
-import {http, headers} from '../services/api'
+import { http, headers } from '../services/api'
 
 
 
@@ -9,19 +9,21 @@ const ACTIONS = {
 }
 
 const ESTADO_INICIAL = {
-    tarefas : []
+    tarefas: []
 }
 
 export const tarefaReducer = (state = ESTADO_INICIAL, action) => {
     switch (action.type) {
         case ACTIONS.LISTAR:
             return { ...state, tarefas: action.tarefas }
+        case ACTIONS.ADD:
+            return { ...state, tarefas: [...state.tarefas, action.tarefa] }
         default:
             return state
     }
 }
 
-export function Listar(){
+export function Listar() {
     return dispatch => {
 
         http.get('/tarefas', {
@@ -33,4 +35,19 @@ export function Listar(){
             })
         })
     }
+}
+
+export function Salvar(tarefa) {
+
+    return dispatch => {
+        http.post('/tarefas', tarefa, {
+            headers
+        }).then(response => {
+            dispatch({
+                type: ACTIONS.ADD,
+                tarefa: response.data
+            })
+        })
+    }
+    
 }
