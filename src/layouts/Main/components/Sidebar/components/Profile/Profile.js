@@ -28,7 +28,7 @@ const Profile = props => {
 
   const user = {
     name: localStorage.getItem('email_usuario_logado'),
-    avatar: '/images/avatars/avatar_11.png',
+    avatar: '/images/avatars/avatar_3.png',
     bio: 'Desenvolvedor'
   };
 

@@ -2,8 +2,6 @@ import { http, headers } from '../services/api'
 
 import { MostrarMensagem, AlterarSeverity } from './mensagensReducer'
 
-
-
 const ACTIONS = {
     LISTAR: 'TAREFAS_LISTAR',
     ADD: 'TAREFAS_ADD',
@@ -69,7 +67,6 @@ export function Salvar(tarefa) {
             ])
         }).catch(response => console.log(response))
     }
-
 }
 
 export function Deletar(id) {
