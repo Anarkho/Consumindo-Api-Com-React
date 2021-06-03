@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
 
 import { TarefasToolbar, TarefasTable } from './components';
-import axios from 'axios'
-import { http, headers } from '../../services/api'
-import { Dialog, DialogContent, DialogActions, DialogTitle, Button } from '@material-ui/core'
+//import { Dialog, DialogContent, DialogActions, DialogTitle, Button } from '@material-ui/core'
 import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { Listar , Salvar, Deletar } from '../../store/tarefasReducers'
+import { Listar, Salvar, Deletar, AlterarStatus } from '../../store/tarefasReducers'
+import { EsconderMensagem} from '../../store/mensagensReducer'
 
 
 const useStyles = makeStyles(theme => ({
@@ -20,41 +19,13 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2)
   }
 }));
-/////////////////////////////////////////////////////
+
 const TarefaList = (props) => {
   const classes = useStyles();
 
-  const [tarefas, setTarefas] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false)
-  const [mensagem, setMensagem] = useState('')
-  const [sucesso, setSucesso] = useState(false)
-  const [informa, setInfo] = useState(false)
-  const [severity, setSeverity] = useState('info')
-
-  
   useEffect(() => {
     props.Listar();
   })
-  //////////////////////////////////////////////////////
-  const alterarStatus = (id) => {
-    axios.patch(`${http}/tarefas/${id}`, null, {
-      headers
-    }).then(response => {
-      const lista = [...tarefas]
-      lista.forEach(tarefa => {
-        if (tarefa.id === id) {
-          tarefa.done = true
-        }
-      })
-      setTarefas(lista)
-      setInfo(true)
-      setMensagem('Status da tarefa atualizado com sucesso!')
-      setSeverity('success')
-    }).catch(erro => {
-
-    })
-  }
- 
 
   return (
     <div className={classes.root}>
@@ -66,49 +37,46 @@ const TarefaList = (props) => {
       </h1>
       <TarefasToolbar defaultValue={props.Salvar} />
       <div className={classes.content}>
-        {sucesso ?
+
+        {props.informa ?
           <Alert
-            onClose={(e) => {
-              setSucesso(false)
-            }}
-            severity="success">
-            <AlertTitle>TAREFA ELIMINADA</AlertTitle>
-             Tarefa deletada com sucesso — &nbsp;
-              <strong>Concluido</strong>
+            onClose={props.EsconderMensagem}
+            severity={props.severity}>
+            <AlertTitle>{props.mensagem}</AlertTitle>
           </Alert> : (<></>)
         }
-        {informa ?
-          <Alert
-            onClose={e => setInfo(false)}
-            severity={severity}>
-            <AlertTitle>{mensagem}</AlertTitle>
-          </Alert> : <></>
-        }
         <TarefasTable
-          onClick={alterarStatus}
+          onClick={props.AlterarStatus}
           tarefas={props.tarefas}
           onMouseUp={props.Deletar}
         />
       </div>
-      <Dialog open={openDialog} onClose={e => setOpenDialog(false)}>
+      {/* <Dialog open={props.openDialog} onClose={props.EsconderMensagem}>
         <DialogTitle>ATENÇÃO</DialogTitle>
         <DialogContent>
-          {mensagem}
+          {props.mensagem}
         </DialogContent>
         <DialogActions>
-          <Button onClick={e => setOpenDialog(false)}>Fechar</Button>
+          <Button onClick={props.EsconderMensagem}>Fechar</Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
 
     </div>
   );
 };
 
 const mapStateToProps = state => ({
-  tarefas: state.Tarefas.tarefas //store.reducer.props
+  tarefas: state.Tarefas.tarefas, //store.reducer.props
+  mensagem: state.Mensagens.mensagem,
+  openDialog: state.Mensagens.mostrarMensagem,
+  informa: state.Mensagens.informa,
+  severity: state.Mensagens.severity
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ Listar, Salvar, Deletar }, dispatch)
+  bindActionCreators({
+    Listar, Salvar, Deletar, AlterarStatus,
+    EsconderMensagem,
+  }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(TarefaList);

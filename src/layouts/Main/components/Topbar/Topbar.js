@@ -7,7 +7,10 @@ import { AppBar, Toolbar, Badge, Hidden, IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
-import {withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
+
+import { connect } from 'react-redux'
+import { compose } from 'redux'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -28,9 +31,9 @@ const Topbar = props => {
 
   const [notifications] = useState([]);
 
-  const logout =()=>{
-      localStorage.removeItem('email_usuario_logado')
-      props.history.push('/login')
+  const logout = () => {
+    localStorage.removeItem('email_usuario_logado')
+    props.history.push('/login')
   }
 
   return (
@@ -48,13 +51,15 @@ const Topbar = props => {
         <div className={classes.flexGrow} />
         <Hidden mdDown>
           <IconButton color="inherit">
-            <Badge
-              badgeContent={notifications.length}
-              color="primary"
-              variant="dot"
-            >
-              <NotificationsIcon />
-            </Badge>
+            {props.notifications > 0 ?
+              <Badge
+                badgeContent={props.notifications}
+                color="secondary"
+              //variant="dot"
+              >
+                <NotificationsIcon />
+              </Badge> : (<></>)
+            }
           </IconButton>
           <IconButton
             onClick={logout}
@@ -73,7 +78,7 @@ const Topbar = props => {
           </IconButton>
         </Hidden>
       </Toolbar>
-    </AppBar>
+    </AppBar >
   );
 };
 
@@ -82,4 +87,11 @@ Topbar.propTypes = {
   onSidebarOpen: PropTypes.func
 };
 
-export default withRouter(Topbar);
+const mapStateToProps = state => ({
+  notifications: state.Tarefas.quantidade
+})
+
+export default compose(
+  connect(mapStateToProps),
+  withRouter
+)(Topbar);
